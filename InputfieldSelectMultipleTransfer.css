@@ -1,0 +1,15 @@
+.Inputfields .InputfieldSelectMultipleTransfer input {
+	max-width: 70%;
+	position: absolute;
+	left: 6px;
+	top: 6px; 
+}
+.InputfieldSelectMultipleTransfer .ui-button {
+	margin-right: 5px;
+	top: -2px; 
+	
+}
+.Inputfields .InputfieldSelectMultipleTransfer .ui-widget-header {
+	padding: 0.5em 0.25em 0.1em 0.5em;
+	line-height: 1.22em;
+}

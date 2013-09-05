@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * Select Multiple Transfer Inputfield for ProcessWire
+ * 
+ * Uses the jquery.uix.multiselect plugin by Yanick Rochon: 
+ * https://github.com/yanickrochon/jquery.uix.multiselect
+ *
+ * ProcessWire 2.x 
+ * Copyright (C) 2013 by Ryan Cramer 
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * 
+ * http://processwire.com
+ *
+ */
+
+class InputfieldSelectMultipleTransfer extends InputfieldSelectMultiple implements InputfieldHasArrayValue {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => __('Select Multiple Transfer', __FILE__), // Module Title
+			'summary' => __('Transfer items from an unselected list to a selected list (or the opposite). Also supports drag/drop sorting.', __FILE__), // Module Summary
+			'href' => 'https://github.com/yanickrochon/jquery.uix.multiselect',
+			'version' => 1,
+			);
+	}
+
+	protected $defaults = array(
+		// whether the selected list is drag/drop sortable
+		'sortable' => 1, 
+		// 'top', 'right', 'bottom', 'left'; the position of the available list (default: 'right')
+		'availableListPosition' => 'right', 
+		// how options can be selected separated by commas: 'click', "dblclick" and 'd&d' (default: 'click,d&d')
+		'selectionMode' => 'click,d&d', 
+		);
+
+	public function __construct() {
+		parent::__construct();
+		foreach($this->defaults as $key => $value) $this->set($key, $value); 
+	}
+
+	public function init() {
+		// requires jQuery UI, so we enforce it being loaded here
+		wire('modules')->get('JqueryCore'); 
+		wire('modules')->get('JqueryUI'); 
+		parent::init(); 
+	}
+
+	public function ___render() {
+
+		$class = $this->className();
+		$this->config->scripts->add($this->config->urls->$class . 'multiselect/js/jquery.uix.multiselect.min.js'); 
+		$this->config->styles->add($this->config->urls->$class . 'multiselect/css/jquery.uix.multiselect.css'); 
+		$height = ($this->size * 2)+1; 
+		$this->attr('style', "width: 96%; height: {$height}em;"); 
+
+		if($this->sortable) {
+			// the following ensures the selected options have their order retained
+			$selectedOptions = $this->attr('value'); 
+			foreach($selectedOptions as $id) {
+				if(!isset($this->options[$id])) continue; 
+				$label = $this->options[$id]; 
+				unset($this->options[$id]); 	
+				$this->addOption($id, $label); 
+			}
+		}
+
+		// populate config options to send to jquery plugin
+		$settings = $this->defaults;
+		foreach($settings as $key => $value) $settings[$key] = $this->$key;
+		$settings['sortable'] = (bool) $settings['sortable'];
+		$this->config->js($this->attr('id'), $settings); 
+
+		return parent::___render();
+	}
+
+	public function ___getConfigInputfields() {
+		$inputfields = parent::___getConfigInputfields();	
+
+		$f = wire('modules')->get('InputfieldInteger'); 
+		$f->label = $this->_('Size: number of rows visible at once in the select multiple'); 
+		$f->attr('name', 'size'); 
+		$f->attr('value', (int) $this->attr('size')); 
+		$inputfields->add($f);
+
+		$f = wire('modules')->get('InputfieldRadios'); 
+		$f->label = $this->_('Available List Position'); 
+		$f->description = $this->_('Controls the position of the available items list, relative to the selected items list.');
+		$f->attr('name', 'availableListPosition'); 
+		$f->addOption('top', $this->_('Top')); 
+		$f->addOption('right', $this->_('Right'));
+		$f->addOption('bottom', $this->_('Bottom'));
+		$f->addOption('left', $this->_('Left'));
+		$f->attr('value', $this->availableListPosition); 
+		$f->optionColumns = 1; 
+		$inputfields->add($f);
+
+		$f = wire('modules')->get('InputfieldRadios'); 
+		$f->label = $this->_('Selection Mode'); 
+		$f->description = $this->_('The action necessary to select (or deselect) an item.'); 
+		$f->attr('name', 'selectionMode'); 
+		$f->addOption('click', $this->_('Single Click')); 
+		$f->addOption('dblclick', $this->_('Double Click'));
+		$f->addOption('d&d', $this->_('Drag/Drop')); 
+		$f->addOption('click,d&d', $this->_('Click or Drag/Drop')); 
+		$f->addOption('dblclick,d&d', $this->_('Double Click or Drag/Drop')); 
+		$f->attr('value', $this->selectionMode); 
+		$inputfields->add($f);
+
+		$f = wire('modules')->get('InputfieldCheckbox');
+		$f->label = $this->_('Sortable?'); 
+		$f->description = $this->_('When checked, the selected list will be sortable by drag/drop.'); 
+		$f->attr('value', 1); 
+		if($this->sortable) $f->attr('checked', 'checked');
+		$inputfields->add($f); 
+
+		return $inputfields; 
+	}
+
+
+}
