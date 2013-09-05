@@ -2,7 +2,10 @@
 
 ## Multi-selection Inputfield module for ProcessWire
 
+<img src='https://raw.github.com/ryancramerdesign/InputfieldSelectMultipleTransfer/master/screenshot.png'>
+
 Uses the [jquery.uix.multiselect](https://github.com/yanickrochon/jquery.uix.multiselect) plugin by Yanick Rochon.
+Made into a ProcessWire module by Ryan Cramer. See also this [video demonstrating the module](http://www.youtube.com/watch?v=IUILYtsQChw).
 
 This Inputfield provides similar capabilities to asmSelect but may be more convenient when 
 needing to select a large quantity of items. It also has a built-in search field for filtering.
